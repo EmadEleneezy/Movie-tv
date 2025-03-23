@@ -1,0 +1,12 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "first_name": "Emad",
+            "last_name": "Emad",
+            "age": "24",
+            "email": "emadeneezy@gmail.com",
+            "password": "Nice"
+        }
+    ]
+}

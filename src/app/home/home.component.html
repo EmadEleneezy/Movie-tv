@@ -1,0 +1,54 @@
+<div class="row">
+  <div class="p-4">
+    <h1 class="h3">Welcome to Movie App</h1>
+    <p class="text-muted">The best place to find movies, tv shows and people</p>
+    <input type="text" type="text"[(ngModel)]="term" class="form-control" placeholder="Search for movies, tv shows and people">
+  </div>
+<div class="col-md-4 d-flex align-items-center">
+<div>
+    <div class="brdr w-25 mb-3"></div>
+<h2 class="h5">Trending  <br> Movies <br>To Watch Right Now</h2>
+<p class="text-muted py-2">most watched Movies by Day</p>
+<div class="brdr w-100 mb-3"></div>
+</div>
+
+
+</div>
+<div *ngFor="let movie of trendingMovies|search:term"  class="col-md-2">
+<app-mediaitem [item]="movie"></app-mediaitem>
+</div>
+</div>
+
+
+<div class="row py-5">
+    <div class="col-md-4 d-flex align-items-center">
+    <div>
+        <div class="brdr w-25 mb-3"></div>
+    <h2 class="h5">Trending  <br> Tv <br>To Watch Right Now</h2>
+    <p class="text-muted py-2">most watched Tv by Day</p>
+    <div class="brdr w-100 mb-3"></div>
+    </div>
+    
+    
+    </div>
+    <div *ngFor="let tv of trendingTv |search:term"  class="col-md-2">
+    <app-mediaitem [item]="tv"></app-mediaitem>
+    </div>
+    </div>
+
+
+    <div class="row py-5">
+        <div class="col-md-4 d-flex align-items-center">
+        <div>
+            <div class="brdr w-25 mb-3"></div>
+        <h2 class="h5">Trending  <br> People <br>To Watch Right Now</h2>
+        <p class="text-muted py-2">most watched People by Day</p>
+        <div class="brdr w-100 mb-3"></div>
+        </div>
+        
+        
+        </div>
+        <div *ngFor="let person of trendingPeople |search:term"  class="col-md-2">
+        <app-mediaitem [item]="person"></app-mediaitem>
+        </div>
+        </div>
