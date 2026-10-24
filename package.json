@@ -1,3 +1,4 @@
+
 {
   "name": "final-app",
   "version": "0.0.0",
@@ -7,7 +8,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:FinalApp": "node dist/final-app/server/server.mjs"
+    "serve:ssr:FinalApp": "node dist/final-app/server/server.mjs",
+    "api": "json-server db.json --host 0.0.0.0"
   },
   "private": true,
   "dependencies": {
