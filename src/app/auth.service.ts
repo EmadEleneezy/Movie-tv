@@ -3,70 +3,114 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
+interface DemoUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+  age?: number;
+  email: string;
+  password: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  userData = new BehaviorSubject<any>(
+  private readonly usersKey = 'movieTvDemoUsers';
+
+  userData = new BehaviorSubject<string | null>(
     localStorage.getItem('userToken')
   );
 
   constructor(private _Router: Router) {}
 
-  private demoUsers = [
-    {
-      id: '1',
-      first_name: 'Emad',
-      last_name: 'Hossam',
-      email: 'emadeneezy@gmail.com',
-      password: 'Nice'
-    },
-    {
-      id: '2',
-      first_name: 'Bella',
-      last_name: 'Nice',
-      email: 'bellanice@gmail.com',
-      password: 'Bella'
-    }
-  ];
+  private getDemoUsers(): DemoUser[] {
+    const savedUsers = localStorage.getItem(this.usersKey);
 
-  saveUserData() {
+    const defaultUsers: DemoUser[] = [
+      {
+        id: '1',
+        first_name: 'Emad',
+        last_name: 'Hossam',
+        email: 'emadeneezy@gmail.com',
+        password: 'Nice'
+      },
+      {
+        id: '2',
+        first_name: 'Bella',
+        last_name: 'Nice',
+        email: 'bellanice@gmail.com',
+        password: 'Bella'
+      }
+    ];
+
+    if (!savedUsers) {
+      localStorage.setItem(this.usersKey, JSON.stringify(defaultUsers));
+      return defaultUsers;
+    }
+
+    try {
+      return JSON.parse(savedUsers) as DemoUser[];
+    } catch {
+      localStorage.setItem(this.usersKey, JSON.stringify(defaultUsers));
+      return defaultUsers;
+    }
+  }
+
+  private saveDemoUsers(users: DemoUser[]): void {
+    localStorage.setItem(this.usersKey, JSON.stringify(users));
+  }
+
+  saveUserData(): void {
     this.userData.next(localStorage.getItem('userToken'));
   }
 
-  signup(userData: any): Observable<any> {
-    const exists = this.demoUsers.some(
-      user => user.email.toLowerCase() === userData.email?.toLowerCase()
+  signup(userData: Omit<DemoUser, 'id'>): Observable<DemoUser> {
+    const users = this.getDemoUsers();
+
+    const email = userData.email.trim().toLowerCase();
+
+    const exists = users.some(
+      user => user.email.toLowerCase() === email
     );
 
     if (exists) {
-      return throwError(() => ({ error: { message: 'Email already exists' } }));
+      return throwError(
+        () => ({ error: { message: 'Email already exists' } })
+      );
     }
 
-    const newUser = {
+    const newUser: DemoUser = {
       ...userData,
+      email,
       id: String(Date.now())
     };
 
-    this.demoUsers.push(newUser);
+    users.push(newUser);
+    this.saveDemoUsers(users);
+
     return of(newUser);
   }
 
-  signin(userData: any): Observable<any> {
-    const user = this.demoUsers.find(
+  signin(userData: { email: string; password: string }): Observable<DemoUser> {
+    const users = this.getDemoUsers();
+
+    const user = users.find(
       item =>
-        item.email.toLowerCase() === userData.email?.toLowerCase() &&
+        item.email.toLowerCase() === userData.email.trim().toLowerCase() &&
         item.password === userData.password
     );
 
     if (!user) {
-      return throwError(() => ({ error: { message: 'Invalid Email or Password' } }));
+      return throwError(
+        () => ({ error: { message: 'Invalid Email or Password' } })
+      );
     }
 
     return of(user);
   }
 
-  signout() {
+  signout(): void {
     localStorage.removeItem('userToken');
     this.userData.next(null);
     this._Router.navigate(['/login']);
