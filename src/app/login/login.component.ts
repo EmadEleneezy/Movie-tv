@@ -1,8 +1,9 @@
+
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
-import { response } from 'express';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-login',
   standalone: false,
@@ -10,35 +11,39 @@ import { Router } from '@angular/router';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
-  constructor(private _AuthService: AuthService, private _Router: Router) { }
+  constructor(
+    private _AuthService: AuthService,
+    private _Router: Router
+  ) {}
 
-  error: string = '';
-  isLoading: boolean = false;
+  error = '';
+  isLoading = false;
+
   loginForm: FormGroup = new FormGroup({
+    email: new FormControl('', [Validators.email, Validators.required]),
+    password: new FormControl('', [Validators.required])
+  });
 
-    email: new FormControl(null, [Validators.email, Validators.required]),
-    password: new FormControl(null, [Validators.pattern(/^[A-Z]/), Validators.required]),
-
-  }
-
-  );
   submitLoginForm(loginForm: FormGroup) {
+    if (loginForm.invalid) {
+      loginForm.markAllAsTouched();
+      return;
+    }
+
     this.isLoading = true;
+    this.error = '';
+
     this._AuthService.signin(loginForm.value).subscribe({
       next: (response) => {
+        localStorage.setItem('userToken', response.id);
+        this._AuthService.saveUserData();
         this.isLoading = false;
-        if (response) {
-          console.log(response);
-         localStorage.setItem('userToken',response.id);
-         this._AuthService.saveUserData();
-          this._Router.navigate(['/home'])
-        }
-        else {
-          this.error = 'Invalid Email or Password';
-        }
-
+        this._Router.navigate(['/home']);
+      },
+      error: () => {
+        this.isLoading = false;
+        this.error = 'Invalid Email or Password';
       }
-
-    })
+    });
   }
 }
